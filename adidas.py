@@ -7,8 +7,10 @@ import plotly.graph_objects as go
 
 # Load sales data from an Excel file
 sales_data = pd.read_excel("Data/Adidas.xlsx")
+sales_data['Year'] = sales_data['InvoiceDate'].dt.year  # Extract year from InvoiceDate
+
 st.set_page_config(layout="wide")
-st.markdown('<style>div.block-container{padding-top:1rem;}</style>', unsafe_allow_html=True)
+st.markdown('<style>div.block-container{padding-top:1rem;} select {width: 100% !important; max-width: 300px; padding-right: 20px;}</style>', unsafe_allow_html=True)
 logo_image = Image.open('Image/adidas-logo.jpg')
 
 # Display logo and title
@@ -50,13 +52,19 @@ with overview_tab:
                        file_name="retailer_sales.csv", mime="text/csv")
 
 with analysis_tab:
-    sales_data["Month_Year"] = sales_data["InvoiceDate"].dt.strftime("%b'%y")
-    monthly_sales_summary = sales_data.groupby(by="Month_Year")["TotalSales"].sum().reset_index()
+    # Year filter with modified CSS for width and padding
+    years = sales_data['Year'].unique()
+    selected_year = st.selectbox('Select Year', options=sorted(years, reverse=True))
+
+    # Filter data based on the selected year
+    filtered_data = sales_data[sales_data['Year'] == selected_year]
+    filtered_data["Month_Year"] = filtered_data["InvoiceDate"].dt.strftime("%b'%y")
+    monthly_sales_summary = filtered_data.groupby(by="Month_Year")["TotalSales"].sum().reset_index()
     monthly_sales_fig = px.line(monthly_sales_summary, x="Month_Year", y="TotalSales", title="Total Sales Over Time",
                                 template="gridon")
     st.plotly_chart(monthly_sales_fig, use_container_width=True)
 
-    state_sales_summary = sales_data.groupby(by="State")[["TotalSales", "UnitsSold"]].sum().reset_index()
+    state_sales_summary = filtered_data.groupby(by="State")[["TotalSales", "UnitsSold"]].sum().reset_index()
     state_sales_fig = go.Figure()
     state_sales_fig.add_trace(go.Bar(x=state_sales_summary["State"], y=state_sales_summary["TotalSales"], name="Total Sales"))
     state_sales_fig.add_trace(go.Scatter(x=state_sales_summary["State"], y=state_sales_summary["UnitsSold"], mode="lines",
@@ -69,8 +77,6 @@ with analysis_tab:
         template="gridon",
         legend=dict(x=1, y=1.1)
     )
-    st.download_button("Download Monthly Sales Data", data=monthly_sales_summary.to_csv().encode('utf-8'),
-                       file_name="monthly_sales.csv", mime="text/csv")
     st.plotly_chart(state_sales_fig, use_container_width=True)
 
 with regional_sales_tab:
