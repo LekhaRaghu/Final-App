@@ -6,7 +6,5 @@ Data/operation abstraction design:
 The dashboard utilizes sales data from Adidas' internal databases along with customer data from CRM systems. The data undergoes cleaning, integration, and transformation processes to ensure accuracy and relevance. Measures are taken to secure and anonymize data to protect customer privacy.
 
 Future work:
-Implement machine learning to forecast sales trends and inventory demands.
-User Customization: Enhance user experience by allowing personalized dashboard views.
-Mobile Optimization: Develop a mobile-responsive version for on-the-go access.
+Implement machine learning to forecast sales trends and inventory demands,User Customization to enhance user experience by allowing personalized dashboard views,Mobile Optimization to develop a mobile-responsive version for on-the-go access.
 
